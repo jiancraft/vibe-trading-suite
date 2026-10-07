@@ -1,0 +1,70 @@
+{
+  "US": {
+    "SPY": {
+      "name": "标普500 ETF",
+      "cost": 500.0,
+      "shares": 100
+    },
+    "QQQ": {
+      "name": "纳斯达克100 ETF",
+      "cost": 450.0,
+      "shares": 100,
+      "trailing_stop_pct": 0.08,
+      "peak": 480.0,
+      "stop": 441.6,
+      "stop_price": 441.6
+    }
+  },
+  "A": {
+    "000001.SZ": {
+      "code": "sz000001",
+      "name": "平安银行",
+      "cost": 10.0,
+      "shares": 1000,
+      "stop": 9.5,
+      "stop_price": 9.5,
+      "role": "金融权重基准 (注: 上证综指为 000001.SH)"
+    },
+    "600519.SH": {
+      "code": "sh600519",
+      "name": "贵州茅台",
+      "cost": 1600.0,
+      "shares": 100,
+      "stop": 1520.0,
+      "stop_price": 1520.0,
+      "role": "消费核心基准"
+    }
+  },
+  "HK": {
+    "02800.HK": {
+      "code": "hk02800",
+      "name": "盈富基金"
+    },
+    "00700.HK": {
+      "code": "hk00700",
+      "name": "腾讯控股"
+    }
+  },
+  "CRYPTO": {
+    "BTC-USDT": {
+      "name": "BTC",
+      "group": "主流基石组",
+      "leverage": "10x",
+      "sl_pct": 0.015,
+      "tp_pct": 0.030,
+      "be_pct": 0.015,
+      "max_spread": 0.05,
+      "digits": 2
+    },
+    "ETH-USDT": {
+      "name": "ETH",
+      "group": "主流基石组",
+      "leverage": "10x",
+      "sl_pct": 0.015,
+      "tp_pct": 0.030,
+      "be_pct": 0.015,
+      "max_spread": 0.05,
+      "digits": 2
+    }
+  }
+}

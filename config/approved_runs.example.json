@@ -1,0 +1,6 @@
+{
+  "/path/to/your/reviewed_strategy_run": {
+    "config.json": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "code/signal_engine.py": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"
+  }
+}

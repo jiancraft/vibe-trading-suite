@@ -1,0 +1,32 @@
+services:
+  vibe-trading:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    image: vibe-trading:latest
+    container_name: vibe-trading-app
+    restart: unless-stopped
+    ports:
+      - "${BIND_ADDR:-127.0.0.1}:${PORT:-8899}:8899"
+    environment:
+      - PORT=8899
+      - API_AUTH_KEY=${API_AUTH_KEY:?API_AUTH_KEY 未设置或为空，拒绝启动}
+      - LANGCHAIN_PROVIDER=${LANGCHAIN_PROVIDER:-deepseek}
+      - LANGCHAIN_MODEL_NAME=${LANGCHAIN_MODEL_NAME:-deepseek-chat}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OKX_API_KEY=${OKX_API_KEY:-}
+      - OKX_SECRET_KEY=${OKX_SECRET_KEY:-}
+      - OKX_PASSPHRASE=${OKX_PASSPHRASE:-}
+      - OKX_IS_SIMULATED=${OKX_IS_SIMULATED:-true}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+    volumes:
+      - vibe-data:/home/vibe/.vibe-trading
+    env_file:
+      - path: .env
+        required: false
+
+volumes:
+  vibe-data:

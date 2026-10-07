@@ -1,0 +1,87 @@
+# 敏感配置与密钥文件 (物理级阻断)
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.cert
+*.json
+!config/portfolio.example.json
+!config/approved_runs.example.json
+!app/package.json
+!app/package-lock.json
+!app/tsconfig*.json
+!app/**/package.json
+!app/**/tsconfig*.json
+!app/**/locales/*.json
+!app/**/fixtures/*.json
+
+# 密码与账户凭证
+okx.json
+trading-connections.json
+credential.json
+credentials.json
+
+# 系统与缓存
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 运行时日志与数据库
+*.log
+*.sqlite
+*.sqlite3
+*.db
+sessions.db
+*.wal
+*.shm
+
+# 临时与媒体
+uploads/
+runs/
+shadow_runs/
+cache/
+node_modules/
+.npm
+
+# 部署产物与私有数据
+deploy_vps_data/
+*.csv
+*.xlsx
+
+# SSH 密钥与凭据
+id_rsa*
+id_ed25519*
+.ssh/
+
+# 审计与压缩包
+AUDIT_FOR_CLAUDE.md
+*.zip
+*.tar.gz
