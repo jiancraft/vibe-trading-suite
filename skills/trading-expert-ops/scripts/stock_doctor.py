@@ -68,8 +68,11 @@ def resolve_symbol(query: str):
     # 显式带有前缀
     if q.startswith("CRYPTO:"):
         return f"crypto:{q.split(':')[1].strip()}"
-    if q.startswith("US:") or q.startswith("US"):
-        return f"us{q.replace('US:', '').replace('US', '')}"
+    raw = query.strip()
+    if raw.upper().startswith("US:"):
+        return f"us{raw[3:].strip().upper()}"
+    if raw.startswith("us") and len(raw) > 2 and raw[2:].isupper():
+        return f"us{raw[2:]}"
 
     # 别名与大盘核心基准映射
     aliases = {
@@ -99,10 +102,13 @@ def resolve_symbol(query: str):
                 return f"sh{q}"
             else:
                 return f"sz{q}"
-    if q.startswith(('SH', 'SZ', 'HK', 'US')):
-        market = q[:2].lower()
-        code = q[2:]
-        return f"{market}{code}"
+
+    # A股与港股显式带市场前缀 (如 sh600519, sz000001, hk00700)
+    if q.startswith(('SH', 'SZ')) and len(q) > 2 and q[2:].isdigit():
+        return f"{q[:2].lower()}{q[2:]}"
+    if q.startswith('HK') and len(q) > 2 and q[2:].isdigit():
+        return f"hk{q[2:]}"
+
     if q.endswith(('.SH', '.SZ', '.HK', '.US')):
         parts = q.split('.')
         return f"{parts[1].lower()}{parts[0]}"

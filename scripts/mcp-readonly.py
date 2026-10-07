@@ -76,15 +76,30 @@ def reviewed_backtest(run_dir: str) -> str:
             "error": "Security check failed: strategy manifest must contain a non-empty mapping of files and SHA-256 fingerprints."
         })
 
+    # 递归收集 run 目录下的所有文件，确保没有任何清单外的未审核文件 (防隐藏代码注入)
+    actual_files: dict[str, str] = {}
+    for p in run.rglob("*"):
+        if p.is_file():
+            if "__pycache__" in p.parts or p.name.startswith("."):
+                continue
+            rel = str(p.relative_to(run))
+            actual_files[rel] = hashlib.sha256(p.read_bytes()).hexdigest()
+
+    unreviewed = set(actual_files.keys()) - set(manifest.keys())
+    if unreviewed:
+        return json.dumps({
+            "status": "error",
+            "error": f"Security violation: unreviewed files found in strategy directory: {sorted(unreviewed)}"
+        })
+
     # 逐文件校验 SHA-256 指纹，确保未经审核的代码绝不执行
     for relative, expected in manifest.items():
-        target = (run / relative).resolve()
-        if not target.is_relative_to(run) or not target.is_file():
+        if relative not in actual_files:
             return json.dumps({
                 "status": "error",
                 "error": f"Required strategy file missing or outside target directory: {relative}"
             })
-        if hashlib.sha256(target.read_bytes()).hexdigest() != expected:
+        if actual_files[relative] != expected:
             return json.dumps({
                 "status": "error",
                 "error": f"Code integrity violation: SHA-256 fingerprint mismatch for {relative}"

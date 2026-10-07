@@ -10,7 +10,7 @@
 [![Protocol: DS-A-STOCK-STD-1.0](https://img.shields.io/badge/Protocol-DS--A--STOCK--STD--1.0-brightgreen.svg)](skills/trading-expert-ops/references/ds_a_stock_std_1.0.md)
 [![Suite-B: v2.0](https://img.shields.io/badge/Suite--B-v2.0-orange.svg)](skills/trading-expert-ops/references/suite_b_blueprint_v2.0.md)
 [![Python: 3.11+](https://img.shields.io/badge/Python-3.11+-3776AB.svg?logo=python&logoColor=white)](https://python.org)
-[![React: 18](https://img.shields.io/badge/React-18-61DAFB.svg?logo=react&logoColor=black)](app/frontend)
+[![React: 19](https://img.shields.io/badge/React-19-61DAFB.svg?logo=react&logoColor=black)](app/frontend)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/jiancraft/vibe-trading-suite/pulls)
 
 <p align="center">
@@ -170,19 +170,15 @@ bash deploy-cloud.sh
 
 ---
 
-## 🛡️ 工业级风控纪律矩阵
+## 🛡️ 工业级风控纪律矩阵 (DS-A-STOCK-STD-1.0)
 
-```
-  ┌─────────────────────────────────────────────────────────────┐
-  │                 DS-A-STOCK-STD-1.0 五大死律                 │
-  ├─────────────────────────────────────────────────────────────┤
-  │ 1. 唯一操作标签: 6选1绝对明确，拒绝模棱两可                 │
-  │ 2. 三色大盘闸门: 红灯攻(80%) / 黄灯震(40-50%) / 蓝黑强制空仓 │
-  │ 3. 建仓区间宽度: 严格 <= 3%，必须带有效确认与失效止损底线   │
-  │ 4. 浮亏绝对禁加: 严禁摊平成本，仅在浮盈突破时按条件加仓     │
-  │ 5. 拒绝投顾套话: 不预测走势，只给客观确定性盈亏比           │
-  └─────────────────────────────────────────────────────────────┘
-```
+| 核心死律 | 量化执行标准 | 触发动作 |
+| :--- | :--- | :--- |
+| **1. 唯一操作标签** | 6 选 1 绝对明确：持仓待涨 / 建仓上车 / 回踩低吸 / 逢高减仓 / 破位止损 / 空仓观望 | 严禁模棱两可与车轱辘废话 |
+| **2. 三色大盘闸门** | 红灯进攻（仓位<=80%）/ 黄灯震荡（仓位<=50%）/ 蓝黑灯退潮 | 退潮期强制空仓避险，严禁新开仓 |
+| **3. 建仓区间宽度** | 建仓区间宽度严格 `<= 3%`，必须带明确有效确认位与失效止损位 | 击穿确认位视为信号无效 |
+| **4. 浮亏严禁加仓** | 持仓浮亏时绝对禁止摊平成本加仓 | 仅在浮盈且突破关键阻力时顺势追加 |
+| **5. 拒绝投顾套话** | 不主观预测行情走势，只给出量化支撑阻力与确定性盈亏比 | 击破止损保护线 100% 纪律离场 |
 
 ---
 

@@ -123,20 +123,21 @@ def _resolve_provider_config() -> dict[str, str]:
 
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
     openai_key = os.getenv("OPENAI_API_KEY", "").strip()
-    if provider == "deepseek" and (gemini_key or openai_key):
+    fallback_enabled = os.getenv("VIBE_TRADING_VISION_FALLBACK", "on").strip().lower() not in ("off", "0", "false", "no")
+    if provider == "deepseek" and fallback_enabled and (gemini_key or openai_key):
         if gemini_key:
             return {
                 "provider": "gemini",
                 "base_url": os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/"),
                 "api_key": gemini_key,
-                "model": "gemini-3.8-flash",
+                "model": os.getenv("GEMINI_VISION_MODEL", "gemini-2.0-flash").strip(),
             }
         else:
             return {
                 "provider": "openai",
                 "base_url": os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
                 "api_key": openai_key,
-                "model": "gpt-6-luna",
+                "model": os.getenv("OPENAI_VISION_MODEL", "gpt-4o-mini").strip(),
             }
 
     model_override = env.ocr.vibe_trading_ocr_llm_model

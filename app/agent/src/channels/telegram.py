@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import re
 import time
 import unicodedata
@@ -368,10 +369,12 @@ class _QueuedTelegramUpdate:
 class TelegramConfig(BaseModel):
     """Telegram channel configuration."""
 
-    enabled: bool = False
-    token: str = ""
+    enabled: bool = Field(default_factory=lambda: bool(os.getenv("TELEGRAM_BOT_TOKEN", "").strip()))
+    token: str = Field(default_factory=lambda: os.getenv("TELEGRAM_BOT_TOKEN", "").strip())
     mode: Literal["polling", "webhook"] = "polling"
-    allow_from: list[str] = Field(default_factory=list)
+    allow_from: list[str] = Field(
+        default_factory=lambda: [x.strip() for x in os.getenv("TELEGRAM_CHAT_ID", "").split(",") if x.strip()]
+    )
     proxy: str | None = None
     reply_to_message: bool = False
     react_emoji: str = "👀"
@@ -477,7 +480,13 @@ class TelegramChannel(BaseChannel):
 
     def __init__(self, config: Any, bus: MessageBus):
         if isinstance(config, dict):
-            config = TelegramConfig.model_validate(config)
+            cfg_dict = dict(config)
+            if not cfg_dict.get("token") and os.getenv("TELEGRAM_BOT_TOKEN"):
+                cfg_dict["token"] = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+                cfg_dict["enabled"] = True
+            if not cfg_dict.get("allow_from") and os.getenv("TELEGRAM_CHAT_ID"):
+                cfg_dict["allow_from"] = [x.strip() for x in os.getenv("TELEGRAM_CHAT_ID", "").split(",") if x.strip()]
+            config = TelegramConfig.model_validate(cfg_dict)
         super().__init__(config, bus)
         self.config: TelegramConfig = config
         self._app: Application | None = None

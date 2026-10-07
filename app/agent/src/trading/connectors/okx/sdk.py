@@ -153,14 +153,31 @@ def config_path() -> Path:
 
 
 def load_config() -> OKXConfig:
-    """Load OKX settings from ``~/.vibe-trading/okx.json``."""
+    """Load OKX settings from ~/.vibe-trading/okx.json with environment variable fallback and safety gates."""
     path = config_path()
-    if not path.exists():
-        return OKXConfig()
-    try:
-        return OKXConfig.from_mapping(json.loads(path.read_text(encoding="utf-8")))
-    except (OSError, ValueError, json.JSONDecodeError) as exc:
-        raise OKXConfigError(f"invalid OKX config at {path}: {exc}") from exc
+    data: dict[str, Any] = {}
+    if path.exists():
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            raise OKXConfigError(f"invalid OKX config at {path}: {exc}") from exc
+
+    # 1. 回退读取环境变量凭证 (若 okx.json 未显式配置)
+    if not data.get("api_key") and os.getenv("OKX_API_KEY"):
+        data["api_key"] = os.getenv("OKX_API_KEY", "").strip()
+    if not data.get("api_secret") and os.getenv("OKX_SECRET_KEY"):
+        data["api_secret"] = os.getenv("OKX_SECRET_KEY", "").strip()
+    if not data.get("passphrase") and os.getenv("OKX_PASSPHRASE"):
+        data["passphrase"] = os.getenv("OKX_PASSPHRASE", "").strip()
+
+    # 2. 模拟盘全局安全门禁: 当 OKX_IS_SIMULATED 为 true 时，强制 profile="paper" 阻断实盘
+    simulated_flag = os.getenv("OKX_IS_SIMULATED", "true").strip().lower()
+    if simulated_flag in ("1", "true", "yes", "on"):
+        data["profile"] = "paper"
+    elif "profile" not in data:
+        data["profile"] = "paper"
+
+    return OKXConfig.from_mapping(data)
 
 
 def save_config(config: OKXConfig) -> Path:
@@ -451,9 +468,36 @@ def place_order(
             cfg, f"OKX connector not configured: missing {', '.join(missing)}.", symbol=clean_symbol, side=clean_side
         )
 
-    # Determine trading mode: contracts (SWAP/FUTURES) use cross margin; standard spot uses cash.
-    is_contract = "-SWAP" in clean_symbol or "-FUTURES" in clean_symbol or len(clean_symbol.split("-")) >= 3
-    td_mode = "cross" if is_contract else "cash"
+    # Determine trading mode: contracts (SWAP / FUTURES) enforce isolated margin (逐仓) and set leverage.
+    # Standard spot uses cash.
+    is_contract = "-SWAP" in clean_symbol or len(clean_symbol.split("-")) >= 3
+    td_mode = "isolated" if is_contract else "cash"
+
+    if is_contract:
+        lever_target = os.getenv("OKX_DEFAULT_LEVERAGE", "10")
+        try:
+            account = _account_client(cfg)
+            lev_resp = account.set_leverage(
+                instId=clean_symbol,
+                lever=str(lever_target),
+                mgnMode="isolated",
+            )
+            lev_code = str(lev_resp.get("code") or "")
+            if lev_code not in ("0", ""):
+                msg = lev_resp.get("msg") or "unknown leverage error"
+                return _order_error(
+                    cfg,
+                    f"Fail-closed: could not lock isolated {lever_target}x leverage for {clean_symbol}: {msg}",
+                    symbol=clean_symbol,
+                    side=clean_side,
+                )
+        except Exception as exc:
+            return _order_error(
+                cfg,
+                f"Fail-closed: failed to invoke OKX set_leverage API for {clean_symbol}: {str(exc)}",
+                symbol=clean_symbol,
+                side=clean_side,
+            )
 
     params: dict[str, Any] = {
         "instId": clean_symbol,

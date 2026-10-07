@@ -53,8 +53,8 @@ COPY pyproject.toml LICENSE README.md ./
 COPY agent/ agent/
 RUN pip install --no-cache-dir --no-deps -e .
 
-# OKX SDK — optional broker connector, not in the hash-pinned lock.
-RUN pip install --no-cache-dir python-okx
+# OKX SDK — optional broker connector, pinned for reproducible builds.
+RUN pip install --no-cache-dir python-okx==0.3.5
 
 # ============================================================================
 # Stage 3: Runtime — carries the prebuilt venv only, no compilers/dev headers.

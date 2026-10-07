@@ -1147,7 +1147,7 @@ class AgentLoop:
             self.memory.run_dir = str(run_dir)
 
         state_store.save_request(run_dir, user_message, {"session_id": session_id})
-        _grounding_flag = os.getenv("VIBE_TRADING_GROUNDING_ENABLED", "false").lower()
+        _grounding_flag = os.getenv("VIBE_TRADING_GROUNDING_ENABLED", "true").lower()
         if _grounding_flag not in ("0", "false", "no", "off"):
             self._grounding = GroundingLedger(
                 run_dir=run_dir,

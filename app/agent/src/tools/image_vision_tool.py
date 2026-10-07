@@ -139,15 +139,17 @@ class AnalyzeImageTool(BaseTool):
             gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
             openai_key = os.getenv("OPENAI_API_KEY", "").strip()
 
-            if provider == "deepseek" and (gemini_key or openai_key):
+            fallback_enabled = os.getenv("VIBE_TRADING_VISION_FALLBACK", "on").strip().lower() not in ("off", "0", "false", "no")
+            if provider == "deepseek" and fallback_enabled and (gemini_key or openai_key):
                 import urllib.request
                 import json
                 if gemini_key:
                     base = os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/").strip().rstrip("/")
                     url = f"{base}/chat/completions"
                     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {gemini_key}"}
+                    model_name = os.getenv("GEMINI_VISION_MODEL", "gemini-2.0-flash").strip()
                     payload = {
-                        "model": "gemini-3.8-flash",
+                        "model": model_name,
                         "messages": messages,
                         "max_tokens": 4096,
                     }
@@ -155,8 +157,9 @@ class AnalyzeImageTool(BaseTool):
                     base = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1").strip().rstrip("/")
                     url = f"{base}/chat/completions"
                     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {openai_key}"}
+                    model_name = os.getenv("OPENAI_VISION_MODEL", "gpt-4o-mini").strip()
                     payload = {
-                        "model": "gpt-6-luna",
+                        "model": model_name,
                         "messages": messages,
                         "max_completion_tokens": 4096,
                     }
